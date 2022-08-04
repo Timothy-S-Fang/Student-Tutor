@@ -1,25 +1,55 @@
-import logo from './logo.svg';
 import './App.css';
+import { Breadcrumb, Layout, Menu } from 'antd';
+import React from 'react';
+import SignUpForm from './Form.js';
+const { Header, Content, Footer } = Layout;
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => (
+  <Layout className="layout">
+    <Header>
+      <div className="logo" />
+      <Menu
+        theme="dark"
+        mode="horizontal"
+        defaultSelectedKeys={['2']}
+        items={new Array(3).fill(null).map((_, index) => {
+          const key = index + 1;
+          return {
+            key,
+            label: `nav ${key}`,
+          };
+        })}
+      />
+    </Header>
+    <Content
+      style={{
+        padding: '0 50px',
+      }}
+    >
+      
+      <Breadcrumb
+        style={{
+          margin: '16px 0',
+        }}
+      >
+        <Breadcrumb.Item>Home</Breadcrumb.Item>
+        <Breadcrumb.Item>List</Breadcrumb.Item>
+        <Breadcrumb.Item>App</Breadcrumb.Item>
+      </Breadcrumb>
+      <div className="site-layout-content">
+      <SignUpForm />
+
+
+      </div>
+    </Content>
+    <Footer
+      style={{
+        textAlign: 'center',
+      }}
+    >
+      Ant Design ©2018 Created by Ant UED
+    </Footer>
+  </Layout>
+);
 
 export default App;
