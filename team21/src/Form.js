@@ -41,51 +41,78 @@ import {
             <Radio.Button value="large">Large</Radio.Button>
           </Radio.Group>
         </Form.Item>
-        <Form.Item label="Input">
-          <Input />
-        </Form.Item>
-        <Form.Item label="Select">
-          <Select>
-            <Select.Option value="demo">Demo</Select.Option>
+
+        <Form.Item label="Role">
+        <Select>
+            <Select.Option value="Student">Student</Select.Option>
+            <Select.Option value="Tutor">Tutor</Select.Option>
           </Select>
         </Form.Item>
-        <Form.Item label="TreeSelect">
-          <TreeSelect
-            treeData={[
-              {
-                title: 'Light',
-                value: 'light',
-                children: [
-                  {
-                    title: 'Bamboo',
-                    value: 'bamboo',
-                  },
-                ],
-              },
-            ]}
-          />
+
+        <Form.Item label="Level">
+        <Select>
+            <Select.Option value="K-12">K-12</Select.Option>
+            <Select.Option value="University">University</Select.Option>
+          </Select>
         </Form.Item>
-        <Form.Item label="Cascader">
+
+        <Form.Item label="Name">
+          <Input />
+        </Form.Item>
+        <Form.Item label="Age">
+          <InputNumber />
+        </Form.Item>
+        <Form.Item label="Subject">
           <Cascader
             options={[
               {
-                value: 'zhejiang',
-                label: 'Zhejiang',
+                value: 'Math',
+                label: 'Math',
                 children: [
                   {
-                    value: 'hangzhou',
-                    label: 'Hangzhou',
+                    value: 'Calculus 12',
+                    label: 'Calculus 12',
+                  },
+                  {
+                    value: 'Trigonometry',
+                    label: 'Trigonometry',
+                  },
+                  {
+                    value: 'Pre-calculus',
+                    label: 'Pre-calculus',
                   },
                 ],
-              },
+            },
+            {
+                value: 'Physics',
+                label: 'Physics',
+                children: [
+                  {
+                    value: 'Thermodynamics',
+                    label: 'Thermodynamics',
+                  },
+                  {
+                    value: 'Electromagnetism',
+                    label: 'Electromagnetism',
+                  },
+                ],
+            },
+            {
+                value: 'English',
+                label: 'English',
+                children: [
+                  {
+                    value: 'Essay Writing',
+                    label: 'Essay Writing',
+                  },
+                ],
+            },
+              
             ]}
           />
         </Form.Item>
         <Form.Item label="DatePicker">
           <DatePicker />
-        </Form.Item>
-        <Form.Item label="InputNumber">
-          <InputNumber />
         </Form.Item>
         <Form.Item label="Switch" valuePropName="checked">
           <Switch />
