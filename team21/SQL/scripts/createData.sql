@@ -1,8 +1,8 @@
 
 CREATE TABLE k_12 (
-    SID int PRIMARY KEY,
+    StudentID int PRIMARY KEY,
     Age int NOT NULL
-    Name char(50),
+    StudentName char(50),
     Exams char(30),
     UniApplication bit,
     SAT bit,
@@ -13,9 +13,9 @@ CREATE TABLE k_12 (
 );
 
 CREATE TABLE University (
-    SID int PRIMARY KEY,
-    Name char(50),
-    Age int,
+    StudentID int PRIMARY KEY,
+    Age int BIT BYKK,
+    StudentName char(50),
     LSAT bit,
     MCAT bit,
     BAR bit,
