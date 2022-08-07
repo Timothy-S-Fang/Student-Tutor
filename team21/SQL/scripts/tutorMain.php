@@ -22,14 +22,9 @@
 
         <form method="POST" action="tutor-service.php"> <!--refresh page when submitted-->
             <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            SID: <input type="text" name="StudentID"> <br /><br />
-            Updated Name: <input type="text" name="newName"> <br /><br />
-            Updated Exams: <input type="text" name="newExams"> <br /><br />
-            Updated UniApplication: <input type="text" name="newUniApplication"> <br /><br />
-            Updated SAT: <input type="text" name="newSAT"> <br /><br />
-            Updated STS: <input type="text" name="newSTS"> <br /><br />
-            Updated TutorID: <input type="text" name="newTutorID"> <br /><br />
-
+            TutorID: <input type="text" name="tutorID"> <br /><br />
+            Updated Age: <input type="text" name="age"> <br /><br />
+            Updated Name: <input type="text" name="name"> <br /><br />
 
             <input type="submit" value="Update" name="updateSubmit"></p>
         </form>
