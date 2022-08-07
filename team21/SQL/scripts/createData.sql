@@ -28,10 +28,11 @@ CREATE TABLE University (
 CREATE TABLE Availabilities (
     STS int PRIMARY KEY,
     MeetTimes char(100),
-    StudentID int NOT NULL,
+    StudentID int,
+    UniStudentID int,
     TID int NOT NULL,
     FOREIGN KEY (StudentID) REFERENCES k_12,
-    FOREIGN KEY (StudentID) REFERENCES University,
+    FOREIGN KEY (UniStudentID) REFERENCES University,
     FOREIGN KEY (TID) REFERENCES Tutors
 );
  
@@ -46,11 +47,12 @@ CREATE TABLE Tutors (
 );
  
 CREATE TABLE NeedHelp (
-    StudentID integer,
+    StudentID int,
+    UniStudentID int,
     SubjectName Char(50)
     PRIMARY KEY (StudentID, SubjectName),
     FOREIGN KEY(StudentID) REFERENCES k_12,
-    FOREIGN KEY(StudentID) REFERENCES University
+    FOREIGN KEY(UniStudentID) REFERENCES University
 );
  
  
@@ -78,9 +80,11 @@ CREATE TABLE WriteReport(
 CREATE TABLE ReceiveReport(
     ReportNumber int,
     StudentID int,
+    UniStudentID int,
     PRIMARY KEY(ReportNumber, StudentID),
     FOREIGN KEY(ReportNumber) REFERENCES Reports,
-    FOREIGN KEY(StudentID) REFERENCES Student
+    FOREIGN KEY(StudentID) REFERENCES k_12,
+    FOREIGN KEY(UniStudentID) REFERENCES University
 )
  
 CREATE TABLE Subjects(
@@ -111,10 +115,11 @@ CREATE TABLE Assignment(
 CREATE TABLE Give(
     AssignNumber int,
     StudentID int,
+    UniStudentID int,
     PRIMARY KEY(AssignNumber, StudentID),
     FOREIGN KEY(AssignNumber) REFERENCES Assignment,
-    FOREIGN KEY(StudentID) REFERENCES K_12,
-    FOREIGN KEY(StudentID) REFERENCES University
+    FOREIGN KEY(StudentID) REFERENCES k_12,
+    FOREIGN KEY(UniStudentID) REFERENCES University
 )
  
 CREATE TABLE Has(
@@ -139,18 +144,16 @@ INSERT INTO University VALUES(18553137, Hargreeves, 22, 0,  0,  1,  183929, 7)
 INSERT INTO University VALUES(32904858, Bobby,  21, 0,  0,  0,  123948, 8)
 INSERT INTO University VALUES(1239485,  Billy,  26, 0,  0,  1,  128384, 7)
  
-INSERT INTO Availabilities VALUES(112312,   T/TH,   35694356,   1)
-INSERT INTO Availabilities VALUES(2,    M/W/F,  24357532,   1)
-INSERT INTO Availabilities VALUES(184935,   T/TH,   13294586,   4)
-INSERT INTO Availabilities VALUES(192383,   M/T/W,  19283844,   5)
-INSERT INTO Availabilities VALUES(123944, M/TH/F,   10293948,   6)
-INSERT INTO Availabilities VALUES(129488, M/TH/SAT, 23423672,   2)
-INSERT INTO Availabilities VALUES(417475, M/W/F,    85566722,   3)
-INSERT INTO Availabilities VALUES(183929, M/W/F,    18553137,   7)
-INSERT INTO Availabilities VALUES(123948, M/TH/F,   32904858,   8)
-INSERT INTO Availabilities VALUES(128384, M/TH/SAT, 1239485,    7)
- 
- 
+INSERT INTO Availabilities VALUES(112312,   T/TH,   35694356, NULL,   1)
+INSERT INTO Availabilities VALUES(2,    M/W/F,  24357532, NULL,   1)
+INSERT INTO Availabilities VALUES(184935,   T/TH,   13294586, NULL,   4)
+INSERT INTO Availabilities VALUES(192383,   M/T/W,  19283844, NULL,   5)
+INSERT INTO Availabilities VALUES(123944, M/TH/F,   10293948, NULL,   6)
+INSERT INTO Availabilities VALUES(129488, M/TH/SAT, NULL, 23423672,   2)
+INSERT INTO Availabilities VALUES(417475, M/W/F,    NULL, 85566722,   3)
+INSERT INTO Availabilities VALUES(183929, M/W/F,    NULL, 18553137,   7)
+INSERT INTO Availabilities VALUES(123948, M/TH/F,   NULL, 32904858,   8)
+INSERT INTO Availabilities VALUES(128384, M/TH/SAT, NULL, 1239485,    7)
  
 INSERT INTO tutors VALUES(1, Leena, 43, 4)
 INSERT INTO tutors VALUES(2, Aaliyah, 23, 3)
@@ -161,16 +164,16 @@ INSERT INTO tutors VALUES(6, Sophia, 24, 3)
 INSERT INTO tutors VALUES(7, Marnie, 28, 4)
 INSERT INTO tutors VALUES(8, Lewis, 17, 1)
  
-INSERT INTO NeedHelp VALUES(35694356, Mathematics)
-INSERT INTO NeedHelp VALUES(24357532, Physics)
-INSERT INTO NeedHelp VALUES(13294586, Physics)
-INSERT INTO NeedHelp VALUES(19283844, English)
-INSERT INTO NeedHelp VALUES(10293948, English)
-INSERT INTO NeedHelp VALUES(23423672, Mathematics)
-INSERT INTO NeedHelp VALUES(85566722, Computer Science)
-INSERT INTO NeedHelp VALUES(18553137, Biology)
-INSERT INTO NeedHelp VALUES(32904858, Biology)
-INSERT INTO NeedHelp VALUES(1239485, Mathematics)
+INSERT INTO NeedHelp VALUES(35694356, NULL, Mathematics)
+INSERT INTO NeedHelp VALUES(24357532, NULL, Physics)
+INSERT INTO NeedHelp VALUES(13294586, NULL, Physics)
+INSERT INTO NeedHelp VALUES(19283844, NULL, English)
+INSERT INTO NeedHelp VALUES(10293948, NULL, English)
+INSERT INTO NeedHelp VALUES(NULL, 23423672, Mathematics)
+INSERT INTO NeedHelp VALUES(NULL, 85566722, Computer Science)
+INSERT INTO NeedHelp VALUES(NULL, 18553137, Biology)
+INSERT INTO NeedHelp VALUES(NULL, 32904858, Biology)
+INSERT INTO NeedHelp VALUES(NULL, 1239485, Mathematics)
  
 INSERT INTO CanTeach VALUES(Mathematics, 1)
 INSERT INTO CanTeach VALUES(Physics, 2)
@@ -190,11 +193,11 @@ INSERT INTO WriteReports VALUES(123213, 3)
 INSERT INTO WriteReports VALUES(956765, 4)
 INSERT INTO WriteReports VALUES(456456, 5)
  
-INSERT INTO ReceiveReport VALUES(23423672, 324234)
-INSERT INTO ReceiveReport VALUES(24357532, 123123)
-INSERT INTO ReceiveReport VALUES(85566722, 123213)
-INSERT INTO ReceiveReport VALUES(18553137, 956765)
-INSERT INTO ReceiveReport VALUES(32904858, 456456)
+INSERT INTO ReceiveReport VALUES(NULL, 23423672, 324234)
+INSERT INTO ReceiveReport VALUES(24357532, NULL 123123)
+INSERT INTO ReceiveReport VALUES(NULL, 85566722, 123213)
+INSERT INTO ReceiveReport VALUES(NULL 18553137, 956765)
+INSERT INTO ReceiveReport VALUES(32904858, NULL, 456456)
  
 INSERT INTO Subjects VALUES(Mathematics)
 INSERT INTO Subjects VALUES(Physics)
@@ -220,11 +223,11 @@ INSERT INTO Assignment VALUES(5, Worksheet on causes of natural disasters, 82)
 INSERT INTO Assignment VALUES(3, Essay on Hamlets disasters, 95)
 INSERT INTO Assignment VALUES(6, Sequential proof problem set, 60)
  
-INSERT INTO Give VALUES(2, 23423672)
-INSERT INTO Give VALUES(12, 24357532)
-INSERT INTO Give VALUES(5, 85566722)
-INSERT INTO Give VALUES(3, 18553137)
-INSERT INTO Give VALUES(6, 32904858)
+INSERT INTO Give VALUES(2, NULL, 23423672)
+INSERT INTO Give VALUES(12, 24357532, NULL)
+INSERT INTO Give VALUES(5, NULL, 85566722)
+INSERT INTO Give VALUES(3, NULL, 18553137)
+INSERT INTO Give VALUES(6, NULL, 32904858)
  
  
 INSERT INTO Has VALUES(Trigonometry Identity Practice, Pre-calc 11, 23423672, 2)
