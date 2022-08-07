@@ -11,6 +11,29 @@
             <input type="submit" value="Login as K-12 Student" name="loginK"></p>
             <input type="submit" value="Login as University Student" name="loginU"></p>
         </form>
+
+        <h2>Show Student Details</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="printTuples" name="printTuples">
+            <input type="submit" name="printTuples"></p>
+        </form>
+
+        <h2>Update Profile</h2>
+        <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
+
+        <form method="POST" action="tutor-service.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
+            SID: <input type="text" name="StudentID"> <br /><br />
+            Updated Name: <input type="text" name="newName"> <br /><br />
+            Updated Exams: <input type="text" name="newExams"> <br /><br />
+            Updated UniApplication: <input type="text" name="newUniApplication"> <br /><br />
+            Updated SAT: <input type="text" name="newSAT"> <br /><br />
+            Updated STS: <input type="text" name="newSTS"> <br /><br />
+            Updated TutorID: <input type="text" name="newTutorID"> <br /><br />
+
+
+            <input type="submit" value="Update" name="updateSubmit"></p>
+        </form>
 <!--
         <h2>insert k-12 student</h2>
 
