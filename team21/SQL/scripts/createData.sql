@@ -1,14 +1,16 @@
- 
+
+// foreign key reference doesnt work; try oracle version
+
 CREATE TABLE k_12 (
     StudentID int PRIMARY KEY,
     Age int NOT NULL,
     StudentName char(50),
     Exams char(30),
-    UniApplication bit,
-    SAT bit,
+    UniApplication int,
+    SAT int,
     STS int NOT NULL,
     TutorID int NOT NULL,
-    FOREIGN KEY (STS) REFERENCES Availabilities,
+    FOREIGN KEY (STS) REFERENCES Availabilities(STS),
     FOREIGN KEY (TutorID) REFERENCES Tutors
 );
  
@@ -16,12 +18,12 @@ CREATE TABLE University (
     StudentID int PRIMARY KEY,
     StudentName char(50),
     Age int,
-    LSAT bit,
-    MCAT bit,
-    BAR bit,
+    LSAT int,
+    MCAT int,
+    BAR int,
     STS int,
     TutorID int,
-    FOREIGN KEY (STS) REFERENCES Availabilities,
+    FOREIGN KEY (STS) REFERENCES Availabilities(STS),
     FOREIGN KEY(TutorID) REFERENCES Tutors
 );
  
@@ -31,8 +33,8 @@ CREATE TABLE Availabilities (
     StudentID int,
     UniStudentID int,
     TID int NOT NULL,
-    FOREIGN KEY (StudentID) REFERENCES k_12,
-    FOREIGN KEY (UniStudentID) REFERENCES University,
+    FOREIGN KEY (StudentID) REFERENCES k_12(StudentID),
+    FOREIGN KEY (UniStudentID) REFERENCES University(StudentID),
     FOREIGN KEY (TID) REFERENCES Tutors
 );
  
@@ -42,15 +44,15 @@ CREATE TABLE Tutors (
     tAge int,
     Ratings int,
     SubjectName char(50) NOT NULL,
-    FOREIGN KEY(STS) REFERENCES Availabilities,
-    FOREIGN KEY(SubjectName) REFERENCES Subject
+    STS int,
+    FOREIGN KEY (STS) REFERENCES Availabilities(STS),
+    FOREIGN KEY (SubjectName) REFERENCES Subject
 );
  
 CREATE TABLE NeedHelp (
-    StudentID int,
+    StudentID int PRIMARY KEY,
     UniStudentID int,
-    SubjectName Char(50)
-    PRIMARY KEY (StudentID, SubjectName),
+    SubjectName Char(50),
     FOREIGN KEY(StudentID) REFERENCES k_12,
     FOREIGN KEY(UniStudentID) REFERENCES University
 );
@@ -83,8 +85,8 @@ CREATE TABLE ReceiveReport(
     UniStudentID int,
     PRIMARY KEY(ReportNumber, StudentID),
     FOREIGN KEY(ReportNumber) REFERENCES Reports,
-    FOREIGN KEY(StudentID) REFERENCES k_12,
-    FOREIGN KEY(UniStudentID) REFERENCES University
+    FOREIGN KEY(StudentID) REFERENCES k_12(StudentID),
+    FOREIGN KEY(UniStudentID) REFERENCES University(StudentID)
 )
  
 CREATE TABLE Subjects(
@@ -95,7 +97,7 @@ CREATE TABLE Courses(
     CourseName char(50) PRIMARY KEY,
     GradeLevel int,
     SubjectName char(80) NOT NULL,
-    FOREIGN KEY(SubjectName) REFERENCES Subjects
+    FOREIGN KEY (SubjectName) REFERENCES Subjects(SubjectName)
 )
  
 CREATE TABLE Topics(
@@ -103,7 +105,7 @@ CREATE TABLE Topics(
     CourseName char(20),
     Difficult int,
     PRIMARY KEY(TopicName, CourseName),
-    FOREIGN KEY(TopicName) REFERENCES Topics
+    FOREIGN KEY(CourseName) REFERENCES Courses(CourseName)
 )
  
 CREATE TABLE Assignment(

@@ -1,41 +1,20 @@
-<!--Test Oracle file for UBC CPSC304 2018 Winter Term 1
-  Created by Jiemin Zhang
-  Modified by Simona Radu
-  Modified by Jessica Wong (2018-06-22)
-  This file shows the very basics of how to execute PHP commands
-  on Oracle.
-  Specifically, it will drop a table, create a table, insert values
-  update values, and then query for values
-
-  IF YOU HAVE A TABLE CALLED "demoTable" IT WILL BE DESTROYED
-
-  The script assumes you already have a server set up
-  All OCI commands are commands to the Oracle libraries
-  To get the file to work, you must place it somewhere where your
-  Apache server can run it, and you must rename it to have a ".php"
-  extension.  You must also change the username and password on the
-  OCILogon below to be your ORACLE username and password -->
-
-  <html>
+<html>
     <head>
-        <title>CPSC 304 PHP/Oracle Demonstration</title>
+        <title>Student Main Page</title>
     </head>
 
     <body>
-        <h2>Reset</h2>
-        <p>If you wish to reset the table press on the reset button. If this is the first time you're running this page, you MUST use reset</p>
 
-        <form method="POST" action="oracle-test.php">
-            <!-- if you want another page to load after the button is clicked, you have to specify that page in the action parameter -->
-            <input type="hidden" id="resetTablesRequest" name="resetTablesRequest">
-            <p><input type="submit" value="Reset" name="reset"></p>
+        <form method="POST" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
+            Student ID: <input type="text" name="studentID"> <br /><br />
+            <input type="submit" value="Login as K-12 Student" name="loginK"></p>
+            <input type="submit" value="Login as University Student" name="loginU"></p>
         </form>
-
-        <hr />
-
+<!--
         <h2>insert k-12 student</h2>
 
-        <form method="POST" action="main.php"> <!--refresh page when submitted-->
+        <form method="POST" action="main.php">
             <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
             StudentID: <input type="text" name="StudentID"> <br /><br />
             Age: <input type="text" name="Age"> <br /><br />
@@ -53,7 +32,7 @@
         <h2>Update Name in DemoTable</h2>
         <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
 
-        <form method="POST" action="main.php"> <!--refresh page when submitted-->
+        <form method="POST" action="main.php">
             <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
             Old Name: <input type="text" name="oldName"> <br /><br />
             New Name: <input type="text" name="newName"> <br /><br />
@@ -64,41 +43,56 @@
         <hr />
 
         <h2>Count the Tuples in DemoTable</h2>
-        <form method="GET" action="main.php"> <!--refresh page when submitted-->
+        <form method="GET" action="main.php">
             <input type="hidden" id="countTupleRequest" name="countTupleRequest">
             <input type="submit" name="countTuples"></p>
         </form>
 
         <hr />
-
-        <h2>Display tables in DemoTable</h2>
-        <form method="GET" action="main.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="printTuplesRequest" name="printTuplesRequest">
-            <input type="submit" name="printTuples"></p>
+-->
+        <h2>Display Available Tutors</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="printTutors" name="printTutors">
+            <input type="submit" name="Show Available Tutors"></p>
         </form>
 
         <?php
 		//this tells the system that it's no longer just parsing html; it's now parsing PHP
-
+        session_start(); 
         $success = True; //keep track of errors so it redirects the page only if there are no errors
         $db_conn = NULL; // edit the login credentials in connectToDB()
-        $show_debug_alert_messages = False; // set to True if you want alerts to show you which methods are being triggered (see how it is used in debugAlertMessage())
+       
+        
+        function connectToDB() {
+            global $db_conn;
 
-        function debugAlertMessage($message) {
-            global $show_debug_alert_messages;
+            // Your username is ora_(CWL_ID) and the password is a(student number). For example,
+			// ora_platypus is the username and a12345678 is the password.
+            $db_conn = OCILogon("ora_stang001", "a22969331", "dbhost.students.cs.ubc.ca:1522/stu");
 
-            if ($show_debug_alert_messages) {
-                echo "<script type='text/javascript'>alert('" . $message . "');</script>";
+            if ($db_conn) {
+                debugAlertMessage("Database is Connected");
+                return true;
+            } else {
+                debugAlertMessage("Cannot connect to Database");
+                $e = OCI_Error(); // For OCILogon errors pass no handle
+                echo htmlentities($e['message']);
+                return false;
             }
         }
 
-        function executePlainSQL($cmdstr) { //takes a plain (no bound variables) SQL command and executes it
-            //echo "<br>running ".$cmdstr."<br>";
+        function disconnectFromDB() {
+            global $db_conn;
+
+            debugAlertMessage("Disconnect from Database");
+            OCILogoff($db_conn);
+        }
+
+        function executePlainSQL($cmdstr) { 
             global $db_conn, $success;
 
             $statement = OCIParse($db_conn, $cmdstr);
-            //There are a set of comments at the end of the file that describe some of the OCI specific functions and how they work
-
+         
             if (!$statement) {
                 echo "<br>Cannot parse the following command: " . $cmdstr . "<br>";
                 $e = OCI_Error($db_conn); // For OCIParse errors pass the connection handle
@@ -118,10 +112,6 @@
 		}
 
         function executeBoundSQL($cmdstr, $list) {
-            /* Sometimes the same statement will be executed several times with different values for the variables involved in the query.
-		In this case you don't need to create the statement several times. Bound variables cause a statement to only be
-		parsed once and you can reuse the statement. This is also very useful in protecting against SQL injection.
-		See the sample code below for how this function is used */
 
 			global $db_conn, $success;
 			$statement = OCIParse($db_conn, $cmdstr);
@@ -152,7 +142,7 @@
             }
         }
 
-        function printResult($result) { //prints results from a select statement
+        function printResult($result) { 
             echo "<br>Retrieved data from table demoTable:<br>";
             echo "<table>";
             echo "<tr><th>ID</th><th>Name</th></tr>";
@@ -170,29 +160,31 @@
             return $table;
         }
 
-        function connectToDB() {
-            global $db_conn;
+        // passing student ID variable to other scripts so can access certain profiles.
+        $studentID = NULL;
+        $inUni = NULL;
 
-            // Your username is ora_(CWL_ID) and the password is a(student number). For example,
-			// ora_platypus is the username and a12345678 is the password.
-            $db_conn = OCILogon("ora_stang001", "a22969331", "dbhost.students.cs.ubc.ca:1522/stu");
+        //takes in studnet ID input
+        function passID() {
+            $id = $_POST['studentID'];
 
-            if ($db_conn) {
-                debugAlertMessage("Database is Connected");
-                return true;
-            } else {
-                debugAlertMessage("Cannot connect to Database");
-                $e = OCI_Error(); // For OCILogon errors pass no handle
-                echo htmlentities($e['message']);
-                return false;
-            }
+            return $id;
         }
 
-        function disconnectFromDB() {
-            global $db_conn;
+        function printTutors($result) { 
+            echo "<table>";
+            echo "<tr><th>ID</th><th>Name</th><th>Age</th><th>Rating</th></tr>";
 
-            debugAlertMessage("Disconnect from Database");
-            OCILogoff($db_conn);
+            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
+                echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td><td>" . $row["Age"] . "</td><td>" . $row["Rating"] . "</td></tr>"; //or just use "echo $row[0]"
+            }
+
+            echo "</table>";
+        }
+
+        function getTutors() {
+            $table = executePlainSQL("SELECT * FROM tutors");
+            return $table;
         }
 
         function handleUpdateRequest() {
@@ -206,16 +198,6 @@
             OCICommit($db_conn);
         }
 
-        function handleResetRequest() {
-            global $db_conn;
-            // Drop old table
-            executePlainSQL("DROP TABLE demoTable");
-
-            // Create new table
-            echo "<br> creating new table <br>";
-            executePlainSQL("CREATE TABLE demoTable (id int PRIMARY KEY, name char(30))");
-            OCICommit($db_conn);
-        }
 
         function handleInsertRequest() {
             global $db_conn;
@@ -250,6 +232,7 @@
             }
         }
 
+
         // HANDLE ALL POST ROUTES
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handlePOSTRequest() {
@@ -270,8 +253,9 @@
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handleGETRequest() {
             if (connectToDB()) {
-                if (array_key_exists('countTuples', $_GET)) {
-                    handleCountRequest();
+                if (array_key_exists('printTutors', $_GET)) {
+                    $tutors = getTutors();
+                    printTutors($tutors);
                 } else if (array_key_exists('printTuples', $_GET)) {
                     $res = getResult();
                     printResult($res);
@@ -283,9 +267,16 @@
 
 		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
             handlePOSTRequest();
-        } else if (isset($_GET['countTupleRequest'])) {
-            handleGETRequest();
-        } else if (isset($_GET['printTuplesRequest'])) {
+        } else if (isset($_POST['loginK'])) {
+            // k-12 login
+            $studentID = passID();
+            $inUni = False;
+            //echo $studentID;
+        } else if (isset($_POST['loginU'])) {
+            // university login
+            $studentID = passID();
+            $inUni = True;
+        } else if (isset($_GET['printTutors'])) {
             handleGETRequest();
         }
 		?>

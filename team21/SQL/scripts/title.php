@@ -8,11 +8,11 @@
     <!--Signup / login to tutor or student.
     Login through student / tutor ID
     after login and signup go straight to tutor / student page.-->
-    <form method="POST" action="studentLogin.php">
+    <form method="POST" action="studentMain.php">
         <p><input type="submit" value="Student Login" name="login"></p>
     </form>
 
-    <form method="POST" action="tutorLogin.php">
+    <form method="POST" action="tutorMain.php">
         <p><input type="submit" value="Tutor Login" name="login"></p>
     </form>
 
