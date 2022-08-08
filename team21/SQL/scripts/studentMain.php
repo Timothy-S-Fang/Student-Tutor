@@ -34,45 +34,7 @@
 
             <input type="submit" value="Update" name="updateSubmit"></p>
         </form>
-<!--
-        <h2>insert k-12 student</h2>
 
-        <form method="POST" action="main.php">
-            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            StudentID: <input type="text" name="StudentID"> <br /><br />
-            Age: <input type="text" name="Age"> <br /><br />
-            StudentName: <input type="text" name="StudentName"> <br /><br />
-            Exams: <input type="text" name="Exams"> <br /><br />
-            UniApplication: <input type="text" name="UniApplication"> <br /><br />
-            SAT: <input type="text" name="SAT"> <br /><br />
-            STS: <input type="text" name="STS"> <br /><br />
-            TutorID: <input type="text" name="TutorID"> <br /><br />
-            <input type="submit" value="Insert" name="insertSubmit"></p>
-        </form>
-
-        <hr />
-
-        <h2>Update Name in DemoTable</h2>
-        <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
-
-        <form method="POST" action="main.php">
-            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            Old Name: <input type="text" name="oldName"> <br /><br />
-            New Name: <input type="text" name="newName"> <br /><br />
-
-            <input type="submit" value="Update" name="updateSubmit"></p>
-        </form>
-
-        <hr />
-
-        <h2>Count the Tuples in DemoTable</h2>
-        <form method="GET" action="main.php">
-            <input type="hidden" id="countTupleRequest" name="countTupleRequest">
-            <input type="submit" name="countTuples"></p>
-        </form>
-
-        <hr />
--->
         <h2>Display Available Tutors</h2>
         <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
             <input type="hidden" id="printTutors" name="printTutors">
@@ -166,7 +128,7 @@
         }
 
         function printResult($result) { 
-            echo "<br>Retrieved data from table demoTable:<br>";
+            echo "<br>Retrieved data from Student:<br>";
             echo "<table>";
             echo "<tr><th>ID</th><th>Name</th></tr>";
 
