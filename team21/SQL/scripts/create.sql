@@ -22,13 +22,17 @@ CREATE TABLE Availabilities (
     TID int
 );
 
+grant select on Availabilities to public;
+
 CREATE TABLE schlSubjects (
     SubjectName char(20) PRIMARY KEY
 );
 
+grant select on schlSubjects to public;
+
 CREATE TABLE Tutors (
     TutorID int PRIMARY KEY,
-    StudentName char(50),
+    TutorName char(50),
     tAge int,
     Ratings int,
     SubjectName char(20) NOT NULL,
@@ -36,6 +40,8 @@ CREATE TABLE Tutors (
     FOREIGN KEY (STS) REFERENCES Availabilities,
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects
 );
+
+grant select on Tutors to public;
 
 CREATE TABLE k_12 (
     StudentID int PRIMARY KEY,
@@ -49,6 +55,8 @@ CREATE TABLE k_12 (
     FOREIGN KEY (STS) REFERENCES Availabilities,
     FOREIGN KEY (TutorID) REFERENCES Tutors
 );
+grant select on k_12 to public;
+
 
 CREATE TABLE University (
     StudentID int PRIMARY KEY,
@@ -62,6 +70,7 @@ CREATE TABLE University (
     FOREIGN KEY (STS) REFERENCES Availabilities,
     FOREIGN KEY(TutorID) REFERENCES Tutors
 );
+grant select on University to public;
 
 CREATE TABLE NeedHelp (
     StudentID int,
@@ -70,6 +79,7 @@ CREATE TABLE NeedHelp (
     FOREIGN KEY(StudentID) REFERENCES k_12,
     FOREIGN KEY(UniStudentID) REFERENCES University
 );
+grant select on NeedHelp to public;
 
 CREATE TABLE CanTeach(
     SubjectName char(20),
@@ -78,11 +88,13 @@ CREATE TABLE CanTeach(
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects,
     FOREIGN KEY (TutorID) REFERENCES Tutors
 );
+grant select on CanTeach to public;
 
 CREATE TABLE Reports(
     ReportNumber int PRIMARY KEY,
     ReportDesc char(1000)
 );
+grant select on Reports to public;
  
 CREATE TABLE WriteReport(
     ReportNumber int,
@@ -91,6 +103,7 @@ CREATE TABLE WriteReport(
     FOREIGN KEY(ReportNumber) REFERENCES Reports,
     FOREIGN KEY(TutorID) REFERENCES Tutors
 );
+grant select on WriteReport to public;
 
 CREATE TABLE ReceiveReport(
     ReportNumber int,
@@ -101,6 +114,7 @@ CREATE TABLE ReceiveReport(
     FOREIGN KEY(StudentID) REFERENCES k_12,
     FOREIGN KEY(UniStudentID) REFERENCES University
 );
+grant select on ReceiveReport to public;
 
 CREATE TABLE Courses(
     CourseName char(20) PRIMARY KEY,
@@ -108,6 +122,7 @@ CREATE TABLE Courses(
     SubjectName char(20) NOT NULL,
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects
 );
+grant select on Courses to public;
 
 CREATE TABLE Topics(
     TopicName char(20),
@@ -116,12 +131,14 @@ CREATE TABLE Topics(
     PRIMARY KEY(TopicName, CourseName),
     FOREIGN KEY(CourseName) REFERENCES Courses
 );
+grant select on Topics to public;
 
 CREATE TABLE Assignment(
     AssignNumber int PRIMARY KEY,
     AssignDescription char(1000),
     Mark int
 );
+grant select on Assignment to public;
 
 CREATE TABLE Give(
     AssignNumber int,
@@ -132,6 +149,7 @@ CREATE TABLE Give(
     FOREIGN KEY(StudentID) REFERENCES k_12,
     FOREIGN KEY(UniStudentID) REFERENCES University
 );
+grant select on Give to public;
 
 CREATE TABLE Has(
     TopicName char(20),
@@ -142,6 +160,7 @@ CREATE TABLE Has(
     FOREIGN KEY(TutorID) REFERENCES Tutors,
     FOREIGN KEY(AssignNumber) REFERENCES Assignment
 );
+grant select on Has to public;
 
 INSERT INTO Availabilities VALUES(112312,   'T/TH',   101, NULL,   1);
 INSERT INTO Availabilities VALUES(212312,    'M/W/F',  201, NULL,   1);
@@ -193,10 +212,17 @@ INSERT INTO NeedHelp VALUES(NULL, 400, 'Biology');
 INSERT INTO NeedHelp VALUES(NULL, 500, 'Mathematics');
 
 INSERT INTO CanTeach VALUES('Mathematics', 1);
+INSERT INTO CanTeach VALUES('Physics', 1);
+INSERT INTO CanTeach VALUES('English', 1);
+INSERT INTO CanTeach VALUES('Computer Science', 1);
+INSERT INTO CanTeach VALUES('Biology', 1);
 INSERT INTO CanTeach VALUES('Physics', 2);
 INSERT INTO CanTeach VALUES('English', 3);
 INSERT INTO CanTeach VALUES('Computer Science', 4);
-INSERT INTO CanTeach VALUES('Biology', 5);
+INSERT INTO CanTeach VALUES('Computer Science', 5);
+INSERT INTO CanTeach VALUES('English', 6);
+INSERT INTO CanTeach VALUES('Mathematics', 7);
+INSERT INTO CanTeach VALUES('Biology', 8);
 
 INSERT INTO Reports VALUES(324234, 'Good');
 INSERT INTO Reports VALUES(123123, 'Bad');
