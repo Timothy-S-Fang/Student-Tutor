@@ -18,7 +18,7 @@
 
     <form method="POST" action="studentSignup.php">
         <p><input type="submit" value="Student Signup" name="ssignup"></p>
-    </form>
+    </form> 
 
     <form method="POST" action="tutorSignup.php">
         <p><input type="submit" value="Tutor Signup" name="tsignup"></p>
