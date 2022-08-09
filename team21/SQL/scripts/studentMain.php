@@ -84,6 +84,12 @@
             Subject: <input type="text" name="subject"> <br /><br />
             <input type="submit" value="Check Highest Rating" name="rater"></p>
         </form>
+        <hr />
+        <h2>Return Most Outstanding Student</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="bestStudent" name="bestStudent">
+            <input type="submit" name="rater"></p>
+        </form>
 
 
         <?php
@@ -328,7 +334,7 @@
             $aNum = $_POST['assNum'];
             $result = executePlainSQL("DELETE FROM assignment WHERE ASSIGNNUMBER = $aNum");
 
-            echo "<h1>Deleted Assignment</h1>";
+            // echo "<h1>Deleted Assignment</h1>";
 
             OCICommit($db_conn);
             
@@ -343,6 +349,20 @@
             $result = executePlainSQL("SELECT MAX(x.avg) FROM ( SELECT AVG(Mark) as avg FROM Assignment INNER JOIN Has ON Has.AssignNumber=Assignment.AssignNumber GROUP BY CourseName)x");
             if (($row = oci_fetch_row($result)) != false) {
                 echo "<br>Highest Avg: " . $row[0] . "<br>";
+            }
+            OCICommit($db_conn);
+        }
+
+        function bestStudent() {
+            global $db_conn;
+
+            echo "<br>Best Student <br>";
+            echo "<table>";
+            echo "<tr><th> Name </th><th> Grade </th></tr>";
+            
+            $result = executePlainSQL("SELECT StudentName, MAX(Mark) FROM Give INNER JOIN k_12 ON Give.StudentID = k_12.StudentID INNER JOIN Assignment ON Assignment.AssignNumber = Give.AssignNumber GROUP BY StudentName");
+            if (($row = oci_fetch_row($result)) != false) {
+                echo "<tr><td>" . $row[0] ."</td><td>" . $row[1] ."</td></tr>";
             }
             OCICommit($db_conn);
         }
@@ -401,8 +421,9 @@
 
                 } else if (array_key_exists('help', $_GET)) {
                     goodTutor();
+                } else if (array_key_exists('bestStudent', $_GET)) {
+                    bestStudent();
                 }
-                    
                 disconnectFromDB();
             }
         }
@@ -434,7 +455,8 @@
             handlePOSTRequest();
         } else if (isset($_GET['findTutors'])) {
             handleGETRequest();
-
+        } else if (isset($_GET['bestStudent'])) {
+            handleGETRequest();
         }
         
 
