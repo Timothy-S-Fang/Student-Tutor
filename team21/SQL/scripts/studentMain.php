@@ -12,71 +12,17 @@
             <input type="submit" value="Login as University Student" name="loginU"></p>
         </form>
 
-        <h2>Show Student Details</h2>
-        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="printTuples" name="printTuples">
-            <input type="submit" name="printTuples"></p>
-        </form>
-
-        <h2>Update Profile</h2>
-        <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
-
-        <form method="POST" action="tutor-service.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            SID: <input type="text" name="StudentID"> <br /><br />
-            Updated Name: <input type="text" name="newName"> <br /><br />
-            Updated Exams: <input type="text" name="newExams"> <br /><br />
-            Updated UniApplication: <input type="text" name="newUniApplication"> <br /><br />
-            Updated SAT: <input type="text" name="newSAT"> <br /><br />
-            Updated STS: <input type="text" name="newSTS"> <br /><br />
-            Updated TutorID: <input type="text" name="newTutorID"> <br /><br />
-
-
-            <input type="submit" value="Update" name="updateSubmit"></p>
-        </form>
-<!--
-        <h2>insert k-12 student</h2>
-
-        <form method="POST" action="main.php">
-            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            StudentID: <input type="text" name="StudentID"> <br /><br />
-            Age: <input type="text" name="Age"> <br /><br />
-            StudentName: <input type="text" name="StudentName"> <br /><br />
-            Exams: <input type="text" name="Exams"> <br /><br />
-            UniApplication: <input type="text" name="UniApplication"> <br /><br />
-            SAT: <input type="text" name="SAT"> <br /><br />
-            STS: <input type="text" name="STS"> <br /><br />
-            TutorID: <input type="text" name="TutorID"> <br /><br />
-            <input type="submit" value="Insert" name="insertSubmit"></p>
-        </form>
-
-        <hr />
-
-        <h2>Update Name in DemoTable</h2>
-        <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
-
-        <form method="POST" action="main.php">
-            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            Old Name: <input type="text" name="oldName"> <br /><br />
-            New Name: <input type="text" name="newName"> <br /><br />
-
-            <input type="submit" value="Update" name="updateSubmit"></p>
-        </form>
-
-        <hr />
-
-        <h2>Count the Tuples in DemoTable</h2>
-        <form method="GET" action="main.php">
-            <input type="hidden" id="countTupleRequest" name="countTupleRequest">
-            <input type="submit" name="countTuples"></p>
-        </form>
-
-        <hr />
--->
         <h2>Display Available Tutors</h2>
         <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
             <input type="hidden" id="printTutors" name="printTutors">
-            <input type="submit" name="Show Available Tutors"></p>
+            <input type="submit" name="tutors"></p>
+        </form>
+
+        <h2>Display Best Rating of Tutor per Subject</h2>
+        <form method="POST" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="checkRatings" name="checkRatings">
+            Subject: <input type="text" name="subject"> <br /><br />
+            <input type="submit" value="Check Highest Rating" name="rater"></p>
         </form>
 
         <?php
@@ -84,7 +30,15 @@
         session_start(); 
         $success = True; //keep track of errors so it redirects the page only if there are no errors
         $db_conn = NULL; // edit the login credentials in connectToDB()
-       
+        $show_debug_alert_messages = False; // set to True if you want alerts to show you which methods are being triggered (see how it is used in debugAlertMessage())
+
+        function debugAlertMessage($message) {
+            global $show_debug_alert_messages;
+
+            if ($show_debug_alert_messages) {
+                echo "<script type='text/javascript'>alert('" . $message . "');</script>";
+            }
+        }
         
         function connectToDB() {
             global $db_conn;
@@ -106,7 +60,6 @@
 
         function disconnectFromDB() {
             global $db_conn;
-
             debugAlertMessage("Disconnect from Database");
             OCILogoff($db_conn);
         }
@@ -165,20 +118,20 @@
             }
         }
 
-        function printResult($result) { 
-            echo "<br>Retrieved data from table demoTable:<br>";
+        function printTutors($result) { //prints results from a select statement
+            echo "<br>Available Tutors: <br>";
             echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th></tr>";
+            echo "<tr><th> ID </th><th> Name </th><th> Age </th><th> Rating/5 </th><th> Subject </th><th> Schedule ID </th></tr>";
 
             while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td></tr>"; //or just use "echo $row[0]"
+                echo "<tr><td>" . $row["TUTORID"] . "</td><td>" . $row["TUTORNAME"] ."</td><td>" . $row["TAGE"] ."</td><td>" . $row["RATINGS"] ."</td><td>" . $row["SUBJECTNAME"] ."</td><td>" . $row["STS"] ."</td></tr>"; //or just use "echo $row[0]"
             }
 
             echo "</table>";
         }
 
-        function getResult() {
-            $table = executePlainSQL("SELECT * FROM demoTable");
+        function getTutors() {
+            $table = executePlainSQL("SELECT * FROM tutors");
 
             return $table;
         }
@@ -190,71 +143,33 @@
         //takes in studnet ID input
         function passID() {
             $id = $_POST['studentID'];
-
+            echo $id;
             return $id;
         }
 
-        function printTutors($result) { 
+        function suggestedTutorsPerSubject($course) {
+            
+            $suggest = executePlainSQL("SELECT MAX(t.ratings) FROM tutors t INNER JOIN CanTeach c ON t.tutorid = c.tutorid GROUP BY c.subjectName HAVING c.subjectName = "."'$courses'");
+            //$suggest = executePlainSQL("SELECT * from tutors t where t.subjectName = " . "'$course'" );
+            echo "<br>Best Tutors For Subject <br>";
             echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th><th>Age</th><th>Rating</th></tr>";
-
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td><td>" . $row["Age"] . "</td><td>" . $row["Rating"] . "</td></tr>"; //or just use "echo $row[0]"
+            echo "<tr><th> Rating </th></tr>";
+            
+            while ($row = OCI_Fetch_Array($suggest, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] ."</td></tr>"; //or just use "echo $row[0]"
             }
 
             echo "</table>";
+
         }
 
-        function getTutors() {
-            $table = executePlainSQL("SELECT * FROM tutors");
-            return $table;
+        function helpStudent () {
+            // finds if there is student that needs help on all subjects
+            $best = executePlainSQL("SELECT  FROM tutors t WHERE NOT EXISTS ((SELECT s.SubjectName FROM schlSubjects s) EXCEPT (SELECT c.SubjectName FROM CanTeach c WHERE c.TutorID = t.TutorID))");
+
         }
 
-        function handleUpdateRequest() {
-            global $dbconn;
-
-            $old_name = $_POST['oldName'];
-            $new_name = $_POST['newName'];
-
-            // you need the wrap the old name and new name values with single quotations
-            executePlainSQL("UPDATE demoTable SET name='" . $new_name . "' WHERE name='" . $old_name . "'");
-            OCICommit($db_conn);
-        }
-
-
-        function handleInsertRequest() {
-            global $db_conn;
-
-            //Getting the values from user and insert data into the table
-            $tuple = array (
-                ":bind1" => $_POST['StudentID'],
-                ":bind2" => $_POST['Age'],
-                ":bind3" => $_POST['StudentName'],
-                ":bind4" => $_POST['Exams'],
-                ":bind5" => $_POST['UniApplication'],
-                ":bind6" => $_POST['SAT'],
-                ":bind7" => $_POST['STS'],
-                ":bind8" => $_POST['TutorID'],
-            );
-
-            $alltuples = array (
-                $tuple
-            );
-
-            executeBoundSQL("insert into k_12 values (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6, :bind7, :bind8,)", $alltuples);
-            OCICommit($db_conn);
-        }
-
-        function handleCountRequest() {
-            global $db_conn;
-
-            $result = executePlainSQL("SELECT Count(*) FROM demoTable");
-
-            if (($row = oci_fetch_row($result)) != false) {
-                echo "<br> The number of tuples in demoTable: " . $row[0] . "<br>";
-            }
-        }
-
+        
 
         // HANDLE ALL POST ROUTES
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
@@ -266,8 +181,11 @@
                     handleUpdateRequest();
                 } else if (array_key_exists('insertQueryRequest', $_POST)) {
                     handleInsertRequest();
+                } else if (array_key_exists('rater', $_POST)) {
+                    $course = $_POST['subject'];
+                    echo $course;
+                    suggestedTutorsPerSubject($course);
                 }
-
                 disconnectFromDB();
             }
         }
@@ -276,32 +194,37 @@
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handleGETRequest() {
             if (connectToDB()) {
-                if (array_key_exists('printTutors', $_GET)) {
-                    $tutors = getTutors();
-                    printTutors($tutors);
-                } else if (array_key_exists('printTuples', $_GET)) {
-                    $res = getResult();
-                    printResult($res);
-                }
+                if (array_key_exists('tutors', $_GET)) {
+                    //$tutors = getTutors();
+                    //printTutors($tutors);
+                    $res = getTutors();
+                    printTutors($res);
+                } 
 
                 disconnectFromDB();
             }
         }
-
+        
 		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
             handlePOSTRequest();
         } else if (isset($_POST['loginK'])) {
             // k-12 login
             $studentID = passID();
             $inUni = False;
-            //echo $studentID;
+            echo $studentID;
         } else if (isset($_POST['loginU'])) {
             // university login
             $studentID = passID();
             $inUni = True;
+            echo $studentID;
         } else if (isset($_GET['printTutors'])) {
             handleGETRequest();
+        } else if (isset($_POST['rater'])) {
+            handlePOSTRequest();
         }
+        
+
+
 		?>
 	</body>
 </html>
