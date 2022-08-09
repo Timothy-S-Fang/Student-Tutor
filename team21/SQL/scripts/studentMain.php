@@ -12,36 +12,16 @@
             <input type="submit" value="Login as University Student" name="loginU"></p>
         </form>
 
-<<<<<<< HEAD
-=======
-        <h2>Show Student Details</h2>
-        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="printTuples" name="printTuples">
-            <input type="submit" name="printTuples"></p>
-        </form>
-
-        <h2>Update Profile</h2>
-        <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
-
-        <form method="POST" action="tutor-service.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
-            SID: <input type="text" name="StudentID"> <br /><br />
-            Updated Name: <input type="text" name="newName"> <br /><br />
-            Updated Exams: <input type="text" name="newExams"> <br /><br />
-            Updated UniApplication: <input type="text" name="newUniApplication"> <br /><br />
-            Updated SAT: <input type="text" name="newSAT"> <br /><br />
-            Updated STS: <input type="text" name="newSTS"> <br /><br />
-            Updated TutorID: <input type="text" name="newTutorID"> <br /><br />
-
-
-            <input type="submit" value="Update" name="updateSubmit"></p>
-        </form>
-
->>>>>>> 8afe0ea9d5acaec4051b141d3a66017d544996db
         <h2>Display Available Tutors</h2>
         <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
             <input type="hidden" id="printTutors" name="printTutors">
             <input type="submit" name="tutors"></p>
+        </form>
+
+        <h2>Find Tutors That Teach Everything</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="findTutors" name="findTutors">
+            <input type="submit" name="help"></p>
         </form>
 
         <h2>Display Best Rating of Tutor per Subject</h2>
@@ -144,13 +124,8 @@
             }
         }
 
-<<<<<<< HEAD
         function printTutors($result) { //prints results from a select statement
             echo "<br>Available Tutors: <br>";
-=======
-        function printResult($result) { 
-            echo "<br>Retrieved data from Student:<br>";
->>>>>>> 8afe0ea9d5acaec4051b141d3a66017d544996db
             echo "<table>";
             echo "<tr><th> ID </th><th> Name </th><th> Age </th><th> Rating/5 </th><th> Subject </th><th> Schedule ID </th></tr>";
 
@@ -180,7 +155,7 @@
 
         function suggestedTutorsPerSubject($course) {
             
-            $suggest = executePlainSQL("SELECT MAX(t.ratings) FROM tutors t INNER JOIN CanTeach c ON t.tutorid = c.tutorid GROUP BY c.subjectName HAVING c.subjectName = "."'$courses'");
+            $suggest = executePlainSQL("SELECT MAX(t.ratings) FROM tutors t INNER JOIN CanTeach c ON t.tutorid = c.tutorid GROUP BY c.subjectName HAVING c.subjectName = "."'$course'");
             //$suggest = executePlainSQL("SELECT * from tutors t where t.subjectName = " . "'$course'" );
             echo "<br>Best Tutors For Subject <br>";
             echo "<table>";
@@ -194,9 +169,23 @@
 
         }
 
-        function helpStudent () {
-            // finds if there is student that needs help on all subjects
-            $best = executePlainSQL("SELECT  FROM tutors t WHERE NOT EXISTS ((SELECT s.SubjectName FROM schlSubjects s) EXCEPT (SELECT c.SubjectName FROM CanTeach c WHERE c.TutorID = t.TutorID))");
+        function goodTutor () {
+            // finds tutor that can teach all subjects, if exists
+            $help = executePlainSQL("SELECT t.tutorname, t.tutorid FROM tutors t 
+            WHERE NOT EXISTS (
+                (SELECT s.SubjectName FROM schlSubjects s)
+                MINUS
+                (SELECT c.SubjectName FROM CanTeach c WHERE t.TutorID = c.TutorID)
+            )");
+            echo "<br>Best Tutors For Subject <br>";
+            echo "<table>";
+            echo "<tr><th> Name </th><th> ID </th></tr>";
+            
+            while ($row = OCI_Fetch_Array($help, OCI_BOTH)) {
+                echo "<tr><td>" . $row["TUTORNAME"] ."</td><td>" . $row["TUTORID"] ."</td></tr>"; //or just use "echo $row[0]"
+            }
+
+            echo "</table>";
 
         }
 
@@ -230,8 +219,10 @@
                     //printTutors($tutors);
                     $res = getTutors();
                     printTutors($res);
-                } 
-
+                } else if (array_key_exists('help', $_GET)) {
+                    goodTutor();
+                }
+                    
                 disconnectFromDB();
             }
         }
@@ -252,6 +243,8 @@
             handleGETRequest();
         } else if (isset($_POST['rater'])) {
             handlePOSTRequest();
+        } else if (isset($_GET['findTutors'])) {
+            handleGETRequest();
         }
         
 
