@@ -14,15 +14,14 @@ DROP TABLE Assignment;
 DROP TABLE Give;
 DROP TABLE Has;
 
-CREATE TABLE Availabilities (
+CREATE TABLE Availabilities
+(
     STS int PRIMARY KEY,
     MeetTimes char(100),
     StudentID int,
     UniStudentID int,
     TID int
 );
-
-grant select on Availabilities to public;
 
 CREATE TABLE schlSubjects (
     SubjectName char(20) PRIMARY KEY
@@ -41,6 +40,7 @@ CREATE TABLE Tutors (
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects
 );
 
+
 grant select on Tutors to public;
 
 CREATE TABLE k_12 (
@@ -58,7 +58,8 @@ CREATE TABLE k_12 (
 grant select on k_12 to public;
 
 
-CREATE TABLE University (
+CREATE TABLE University
+(
     StudentID int PRIMARY KEY,
     StudentName char(50),
     Age int,
@@ -72,7 +73,8 @@ CREATE TABLE University (
 );
 grant select on University to public;
 
-CREATE TABLE NeedHelp (
+CREATE TABLE NeedHelp
+(
     StudentID int,
     UniStudentID int,
     SubjectName char(20),
@@ -81,7 +83,8 @@ CREATE TABLE NeedHelp (
 );
 grant select on NeedHelp to public;
 
-CREATE TABLE CanTeach(
+CREATE TABLE CanTeach
+(
     SubjectName char(20),
     TutorID int,
     PRIMARY KEY (SubjectName, TutorID),
@@ -90,10 +93,12 @@ CREATE TABLE CanTeach(
 );
 grant select on CanTeach to public;
 
-CREATE TABLE Reports(
+CREATE TABLE Reports
+(
     ReportNumber int PRIMARY KEY,
     ReportDesc char(1000)
 );
+
 grant select on Reports to public;
  
 CREATE TABLE WriteReport(
@@ -105,7 +110,8 @@ CREATE TABLE WriteReport(
 );
 grant select on WriteReport to public;
 
-CREATE TABLE ReceiveReport(
+CREATE TABLE ReceiveReport
+(
     ReportNumber int,
     StudentID int,
     UniStudentID int,
@@ -116,7 +122,8 @@ CREATE TABLE ReceiveReport(
 );
 grant select on ReceiveReport to public;
 
-CREATE TABLE Courses(
+CREATE TABLE Courses
+(
     CourseName char(20) PRIMARY KEY,
     GradeLevel int,
     SubjectName char(20) NOT NULL,
@@ -124,7 +131,8 @@ CREATE TABLE Courses(
 );
 grant select on Courses to public;
 
-CREATE TABLE Topics(
+CREATE TABLE Topics
+(
     TopicName char(20),
     CourseName char(20),
     Difficult int,
@@ -133,34 +141,39 @@ CREATE TABLE Topics(
 );
 grant select on Topics to public;
 
-CREATE TABLE Assignment(
+CREATE TABLE Assignment
+(
     AssignNumber int PRIMARY KEY,
-    AssignDescription char(1000),
+    AssignDescription varchar(1000),
     Mark int
 );
 grant select on Assignment to public;
 
-CREATE TABLE Give(
+CREATE TABLE Give
+(
     AssignNumber int,
     StudentID int,
     UniStudentID int,
     PRIMARY KEY(AssignNumber),
-    FOREIGN KEY(AssignNumber) REFERENCES Assignment,
-    FOREIGN KEY(StudentID) REFERENCES k_12,
-    FOREIGN KEY(UniStudentID) REFERENCES University
+    FOREIGN KEY(AssignNumber) REFERENCES Assignment ON DELETE CASCADE,
+    FOREIGN KEY(StudentID) REFERENCES k_12 ON DELETE CASCADE,
+    FOREIGN KEY(UniStudentID) REFERENCES University ON DELETE CASCADE
 );
 grant select on Give to public;
 
-CREATE TABLE Has(
+CREATE TABLE Has
+(
     TopicName char(20),
     CourseName char(20),
     TutorID integer,
     AssignNumber integer,
-    FOREIGN KEY(TopicName, CourseName) REFERENCES Topics,
-    FOREIGN KEY(TutorID) REFERENCES Tutors,
-    FOREIGN KEY(AssignNumber) REFERENCES Assignment
+    FOREIGN KEY(TopicName, CourseName) REFERENCES Topics ON DELETE CASCADE,
+    FOREIGN KEY(TutorID) REFERENCES Tutors ON DELETE CASCADE,
+    FOREIGN KEY(AssignNumber) REFERENCES Assignment ON DELETE CASCADE
 );
 grant select on Has to public;
+
+
 
 INSERT INTO Availabilities VALUES(112312,   'T/TH',   101, NULL,   1);
 INSERT INTO Availabilities VALUES(212312,    'M/W/F',  201, NULL,   1);
