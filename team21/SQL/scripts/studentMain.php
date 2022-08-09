@@ -91,6 +91,13 @@
             <input type="submit" name="rater"></p>
         </form>
 
+        <hr />
+        <h2>Display Failed assignments</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="failedAssignments" name="failedAssignments">
+            <input type="submit" name="Display Failed assignments"></p>
+        </form>
+
 
         <?php
 		//this tells the system that it's no longer just parsing html; it's now parsing PHP
@@ -113,7 +120,7 @@
             // Your username is ora_(CWL_ID) and the password is a(student number). For example,
 			// ora_platypus is the username and a12345678 is the password.
 
-            $db_conn = OCILogon("ora_timfang1", "a78166642", "dbhost.students.cs.ubc.ca:1522/stu");
+            $db_conn = OCILogon("ora_iz9877", "a49050693", "dbhost.students.cs.ubc.ca:1522/stu");
             
 
             if ($db_conn) {
@@ -366,6 +373,20 @@
             }
             OCICommit($db_conn);
         }
+        
+        function failed() {
+            global $db_conn;
+
+            echo "<br>Failed Assignemnts <br>";
+            echo "<table>";
+            echo "<tr><th>Assignemnt Number</th><th>Mark</th></tr>";
+            
+            $result = executePlainSQL("SELECT * FROM assignment WHERE Mark < 50");
+            if (($row = oci_fetch_row($result)) != false) {
+                echo "<tr><td>" . $row[0] ."</td><td>" . $row[2] ."</td></tr>";
+            }
+            OCICommit($db_conn);
+        }
 
 
 
@@ -423,6 +444,8 @@
                     goodTutor();
                 } else if (array_key_exists('bestStudent', $_GET)) {
                     bestStudent();
+                } else if (array_key_exists('failedAssignments', $_GET)) {
+                    failed();
                 }
                 disconnectFromDB();
             }
@@ -453,9 +476,9 @@
             handlePOSTRequest();
         } else if (isset($_POST['rater'])) {
             handlePOSTRequest();
-        } else if (isset($_GET['findTutors'])) {
-            handleGETRequest();
         } else if (isset($_GET['bestStudent'])) {
+            handleGETRequest();
+        } else if (isset($_GET['failedAssignments'])) {
             handleGETRequest();
         }
         
