@@ -223,21 +223,25 @@ INSERT INTO Courses VALUES('Language Arts 9', 9, 'English');
 INSERT INTO Courses VALUES('BIOL 111', 13, 'Biology');
 
 INSERT INTO Topics VALUES('Trigonometry','Pre-Calc 11',	7);
-INSERT INTO Topics VALUES('Cells','Biology 12',3);
+INSERT INTO Topics VALUES('Cells','Biology 12', 3);
 INSERT INTO Topics VALUES('Sequence Proofs','MATH 220', 10);
 INSERT INTO Topics VALUES('Hamlet',	'Language Arts 9',	1);
 INSERT INTO Topics VALUES('Natural Disasters','BIOL 111',3);
 
 INSERT INTO Assignment VALUES(2, 'Trigonometry Identity Practice', 90);
 INSERT INTO Assignment VALUES(12, 'Worksheet on cellular composition', 78);
-INSERT INTO Assignment VALUES(5, 'Worksheet on causes of natural disasters', 82);
-INSERT INTO Assignment VALUES(3, 'Essay on Hamlets disasters', 95);
+INSERT INTO Assignment VALUES(5, 'Worksheet on causes of natural disasters', 94);
+INSERT INTO Assignment VALUES(3, 'Essay on Hamlets disasters', 99);
 INSERT INTO Assignment VALUES(6, 'Sequential proof problem set', 60);
+INSERT INTO Assignment VALUES(10, 'mitosis', 94);
+INSERT INTO Assignment VALUES(14, 'shakespeare', 50);
+INSERT INTO Assignment VALUES(11, 'Ecosystemsss', 90);
+INSERT INTO Assignment VALUES(13, 'Calc', 93);
 
 INSERT INTO Give VALUES(2, NULL, 100);
 INSERT INTO Give VALUES(12, 201, NULL);
-INSERT INTO Give VALUES(5, NULL, 200);
-INSERT INTO Give VALUES(3, NULL, 300);
+INSERT INTO Give VALUES(5, 201, NULL);
+INSERT INTO Give VALUES(3, 201, NULL);
 INSERT INTO Give VALUES(6, NULL, 400);
 
 INSERT INTO Has VALUES('Trigonometry', 'Pre-Calc 11',1, 2);
@@ -245,3 +249,9 @@ INSERT INTO Has VALUES('Cells', 'Biology 12', 2, 12);
 INSERT INTO Has VALUES('Natural Disasters', 'BIOL 111', 3, 5);
 INSERT INTO Has VALUES('Hamlet', 'Language Arts 9', 4, 3);
 INSERT INTO Has VALUES('Sequence Proofs', 'MATH 220', 5, 6);
+INSERT INTO Has VALUES('Natural Disasters', 'BIOL 111', 1, 10);
+INSERT INTO Has VALUES('Natural Disasters', 'BIOL 111', 1, 11);
+INSERT INTO Has VALUES('Trigonometry', 'Pre-Calc 11', 1, 13);
+INSERT INTO Has VALUES('Hamlet', 'Language Arts 9', 1, 14);
+
+commit;

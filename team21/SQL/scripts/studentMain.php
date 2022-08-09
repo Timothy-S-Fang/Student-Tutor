@@ -7,38 +7,43 @@
 
         <form method="POST" action="studentMain.php"> <!--refresh page when submitted-->
             <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
-            Student ID: <input type="text" name="studentID"> <br /><br />
+            Student ID: <input type="text" name="studentID"> <br /><br />   
             <input type="submit" value="Login as K-12 Student" name="loginK"></p>
             <input type="submit" value="Login as University Student" name="loginU"></p>
         </form>
 
-        <h2>Show Student Details</h2>
+        <hr />
+
+        <h2>Show All Students</h2>
         <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="printTuples" name="printTuples">
-            <input type="submit" name="printTuples"></p>
+            <input type="hidden" id="printTuplesRequest" name="printTuplesRequest">
+            <input type="submit" value="Show" name="printTuples"></p>
         </form>
+
+        <hr />
 
         <h2>Update Profile</h2>
         <p>The values are case sensitive and if you enter in the wrong case, the update statement will not do anything.</p>
 
-        <form method="POST" action="tutor-service.php"> <!--refresh page when submitted-->
+        <form method="POST" action="studentMain.php"> 
             <input type="hidden" id="updateQueryRequest" name="updateQueryRequest">
             SID: <input type="text" name="StudentID"> <br /><br />
             Updated Name: <input type="text" name="newName"> <br /><br />
+            Update Age: <input type="text" name="newAge"> <br /><br />
             Updated Exams: <input type="text" name="newExams"> <br /><br />
             Updated UniApplication: <input type="text" name="newUniApplication"> <br /><br />
             Updated SAT: <input type="text" name="newSAT"> <br /><br />
             Updated STS: <input type="text" name="newSTS"> <br /><br />
             Updated TutorID: <input type="text" name="newTutorID"> <br /><br />
 
-
             <input type="submit" value="Update" name="updateSubmit"></p>
         </form>
 
-        <h2>Display Available Tutors</h2>
-        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="printTutors" name="printTutors">
-            <input type="submit" name="Show Available Tutors"></p>
+        <h2>Easiest Subject</h2>
+        <p>Calculated by the highest average of all assignment grades</p>
+        <form method="GET" action="studentMain.php"> 
+            <input type="hidden" id="calculateAvgQueryRequest" name="calculateAvgQueryRequest">
+            <input type="submit" value="Calculate" name="calculateHighAvg"></p>
         </form>
 
         <?php
@@ -46,15 +51,23 @@
         session_start(); 
         $success = True; //keep track of errors so it redirects the page only if there are no errors
         $db_conn = NULL; // edit the login credentials in connectToDB()
+        $show_debug_alert_messages = False; // set to True if you want alerts to show you which methods are being triggered (see how it is used in debugAlertMessage())
+
+        function debugAlertMessage($message) {
+            global $show_debug_alert_messages;
+
+            if ($show_debug_alert_messages) {
+                echo "<script type='text/javascript'>alert('" . $message . "');</script>";
+            }
+        }
        
         
         function connectToDB() {
             global $db_conn;
-
             // Your username is ora_(CWL_ID) and the password is a(student number). For example,
 			// ora_platypus is the username and a12345678 is the password.
-            $db_conn = OCILogon("ora_stang001", "a22969331", "dbhost.students.cs.ubc.ca:1522/stu");
-
+            $db_conn = OCILogon("ora_timfang1", "a78166642", "dbhost.students.cs.ubc.ca:1522/stu");
+            
             if ($db_conn) {
                 debugAlertMessage("Database is Connected");
                 return true;
@@ -64,6 +77,7 @@
                 echo htmlentities($e['message']);
                 return false;
             }
+
         }
 
         function disconnectFromDB() {
@@ -127,21 +141,16 @@
             }
         }
 
-        function printResult($result) { 
-            echo "<br>Retrieved data from Student:<br>";
+        function getStudents() {
+            $table = executePlainSQL("SELECT * FROM k_12");
+            echo "<br>Retrieved data from stu:<br>";
             echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th></tr>";
+            echo "<tr><th>StudentID</th><th>Name</th><th>Age</th><th>SAT</th></tr>";
 
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td></tr>"; //or just use "echo $row[0]"
+            while ($row = OCI_Fetch_Array($table, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] . "</td><td>" . $row[1] . "</td><td>" . $row[2] . "</td><td>" . $row[3] . "</td></tr>"; //or just use "echo $row[0]"
             }
-
             echo "</table>";
-        }
-
-        function getResult() {
-            $table = executePlainSQL("SELECT * FROM demoTable");
-
             return $table;
         }
 
@@ -156,31 +165,23 @@
             return $id;
         }
 
-        function printTutors($result) { 
-            echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th><th>Age</th><th>Rating</th></tr>";
-
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td><td>" . $row["Age"] . "</td><td>" . $row["Rating"] . "</td></tr>"; //or just use "echo $row[0]"
-            }
-
-            echo "</table>";
-        }
-
-        function getTutors() {
-            $table = executePlainSQL("SELECT * FROM tutors");
-            return $table;
-        }
-
         function handleUpdateRequest() {
-            global $dbconn;
+            global $db_conn;
 
-            $old_name = $_POST['oldName'];
+            $student_ID = $_POST['StudentID'];
+            $new_age = $_POST['newAge'];
             $new_name = $_POST['newName'];
+            $new_exam = $_POST['newExams'];
+            $new_uni_application = $_POST['newUniApplication'];
+            $new_SAT = $_POST['newSAT'];
+            $new_STS = $_POST['newSTS'];
+            $new_TID = $_POST['newTutorID'];
 
             // you need the wrap the old name and new name values with single quotations
-            executePlainSQL("UPDATE demoTable SET name='" . $new_name . "' WHERE name='" . $old_name . "'");
+            executePlainSQL("UPDATE k_12 SET StudentName= '" . $new_name . "' WHERE StudentID = ". $student_ID ."");
+
             OCICommit($db_conn);
+            
         }
 
 
@@ -190,13 +191,13 @@
             //Getting the values from user and insert data into the table
             $tuple = array (
                 ":bind1" => $_POST['StudentID'],
-                ":bind2" => $_POST['Age'],
-                ":bind3" => $_POST['StudentName'],
+                ":bind2" => $_POST['StudentName'],
+                ":bind3" => $_POST['Age'],
                 ":bind4" => $_POST['Exams'],
                 ":bind5" => $_POST['UniApplication'],
                 ":bind6" => $_POST['SAT'],
                 ":bind7" => $_POST['STS'],
-                ":bind8" => $_POST['TutorID'],
+                ":bind8" => $_POST['TutorID']
             );
 
             $alltuples = array (
@@ -217,6 +218,16 @@
             }
         }
 
+        function handleHighAvgRequest() {
+            global $db_conn;
+            
+            $result = executePlainSQL("SELECT MAX(x.avg) FROM ( SELECT AVG(Mark) as avg FROM Assignment INNER JOIN Has ON Has.AssignNumber=Assignment.AssignNumber GROUP BY CourseName)x");
+            if (($row = oci_fetch_row($result)) != false) {
+                echo "<br>Highest Avg: " . $row[0] . "<br>";
+            }
+            OCICommit($db_conn);
+        }
+
 
         // HANDLE ALL POST ROUTES
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
@@ -229,7 +240,6 @@
                 } else if (array_key_exists('insertQueryRequest', $_POST)) {
                     handleInsertRequest();
                 }
-
                 disconnectFromDB();
             }
         }
@@ -238,12 +248,20 @@
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handleGETRequest() {
             if (connectToDB()) {
-                if (array_key_exists('printTutors', $_GET)) {
-                    $tutors = getTutors();
-                    printTutors($tutors);
+                if (array_key_exists('countTuples   ', $_GET)) {
+                    $table = executePlainSQL("SELECT * FROM k_12");
+                    echo "<br>Retrieved data from stu:<br>";
+                    echo "<table>";
+                    echo "<tr><th>ID</th><th>Name</th></tr>";
+
+                    if ($row = OCI_Fetch_Array($table, OCI_BOTH)) {
+                        echo "<tr><td>" . $row["Age"] . "</td><td>" . $row["StudentName"] . "</td></tr>"; //or just use "echo $row[0]"
+                    }
+                    echo "</table>";
                 } else if (array_key_exists('printTuples', $_GET)) {
-                    $res = getResult();
-                    printResult($res);
+                    getStudents();
+                } else if (array_key_exists('calculateHighAvg', $_GET)) {
+                    handleHighAvgRequest();
                 }
 
                 disconnectFromDB();
@@ -261,7 +279,9 @@
             // university login
             $studentID = passID();
             $inUni = True;
-        } else if (isset($_GET['printTutors'])) {
+        } else if (isset($_GET['printTuplesRequest'])) {
+            handleGETRequest();
+        } else if (isset($_GET['calculateAvgQueryRequest'])) {
             handleGETRequest();
         }
 		?>
