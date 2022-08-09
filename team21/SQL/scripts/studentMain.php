@@ -185,12 +185,12 @@
 
         function getStudents() {
             $table = executePlainSQL("SELECT * FROM k_12");
-            echo "<br>Retrieved data from stu:<br>";
+            echo "<br>Retrieved data from Students:<br>";
             echo "<table>";
-            echo "<tr><th>StudentID</th><th>Name</th><th>Age</th><th>SAT</th></tr>";
+            echo "<tr><th>StudentID</th><th>Name</th><th>Age</th></tr>";
 
             while ($row = OCI_Fetch_Array($table, OCI_BOTH)) {
-                echo "<tr><td>" . $row[0] . "</td><td>" . $row[1] . "</td><td>" . $row[2] . "</td><td>" . $row[3] . "</td></tr>"; //or just use "echo $row[0]"
+                echo "<tr><td>" . $row[0] . "</td><td>" . $row[1] . "</td><td>" . $row[2] . "</td></tr>"; //or just use "echo $row[0]"
             }
         }
 
