@@ -236,7 +236,7 @@
                 $tuple
             );
 
-            executeBoundSQL("insert into k_12 values (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6, :bind7, :bind8,)", $alltuples);
+            executeBoundSQL("INSERT INTO k_12 VALUES (:bind1, :bind2, :bind3, :bind4, :bind5, :bind6, :bind7, :bind8,)", $alltuples);
             OCICommit($db_conn);
         }
 

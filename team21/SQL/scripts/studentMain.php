@@ -15,6 +15,7 @@
         <h2>Display Available Tutors</h2>
         <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
             <input type="hidden" id="printTutors" name="printTutors">
+
             <input type="submit" name="Show Available Tutors"></p>
         </form>
 
@@ -37,7 +38,21 @@
             <input type="submit" value="Delete Assignment" name="deleteAssignment"></p>
         </form>
 
-        
+            <input type="submit" name="tutors"></p>
+        </form>
+
+        <h2>Find Tutors That Teach Everything</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="findTutors" name="findTutors">
+            <input type="submit" name="help"></p>
+        </form>
+
+        <h2>Display Best Rating of Tutor per Subject</h2>
+        <form method="POST" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="checkRatings" name="checkRatings">
+            Subject: <input type="text" name="subject"> <br /><br />
+            <input type="submit" value="Check Highest Rating" name="rater"></p>
+        </form>
 
         <?php
 		//this tells the system that it's no longer just parsing html; it's now parsing PHP
@@ -53,7 +68,6 @@
                 echo "<script type='text/javascript'>alert('" . $message . "');</script>";
             }
         }
-       
         
         function connectToDB() {
             global $db_conn;
@@ -75,7 +89,6 @@
 
         function disconnectFromDB() {
             global $db_conn;
-
             debugAlertMessage("Disconnect from Database");
             OCILogoff($db_conn);
         }
@@ -134,20 +147,20 @@
             }
         }
 
-        function printResult($result) { 
-            echo "<br>Retrieved data from table demoTable:<br>";
+        function printTutors($result) { //prints results from a select statement
+            echo "<br>Available Tutors: <br>";
             echo "<table>";
-            echo "<tr><th>ID</th><th>Name</th></tr>";
+            echo "<tr><th> ID </th><th> Name </th><th> Age </th><th> Rating/5 </th><th> Subject </th><th> Schedule ID </th></tr>";
 
             while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td></tr>"; //or just use "echo $row[0]"
+                echo "<tr><td>" . $row["TUTORID"] . "</td><td>" . $row["TUTORNAME"] ."</td><td>" . $row["TAGE"] ."</td><td>" . $row["RATINGS"] ."</td><td>" . $row["SUBJECTNAME"] ."</td><td>" . $row["STS"] ."</td></tr>"; //or just use "echo $row[0]"
             }
 
             echo "</table>";
         }
 
-        function getResult() {
-            $table = executePlainSQL("SELECT * FROM demoTable");
+        function getTutors() {
+            $table = executePlainSQL("SELECT * FROM tutors");
 
             return $table;
         }
@@ -159,9 +172,10 @@
         //takes in studnet ID input
         function passID() {
             $id = $_POST['studentID'];
-
+            echo $id;
             return $id;
         }
+
 
         function printTutors($result) { 
             echo "<h1>Hi I got here</h1>";
@@ -171,10 +185,22 @@
             while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
                 echo "<tr><td>" . $row["TUTORID"] . "</td><td>" . $row["TAGE"] . "</td><td>" . $row["RATINGS"] . "</td></tr>"; //or just use "echo $row[0]"
                 // echo "<tr><td>" . $row["ID"] . "</td><td>" . $row["NAME"] . "</td><td>" . $row["Age"] . "</td><td>" . $row["Rating"] . "</td></tr>"; //or just use "echo $row[0]"
+
+        function suggestedTutorsPerSubject($course) {
+            
+            $suggest = executePlainSQL("SELECT MAX(t.ratings) FROM tutors t INNER JOIN CanTeach c ON t.tutorid = c.tutorid GROUP BY c.subjectName HAVING c.subjectName = "."'$course'");
+            //$suggest = executePlainSQL("SELECT * from tutors t where t.subjectName = " . "'$course'" );
+            echo "<br>Best Tutors For Subject <br>";
+            echo "<table>";
+            echo "<tr><th> Rating </th></tr>";
+            
+            while ($row = OCI_Fetch_Array($suggest, OCI_BOTH)) {
+                echo "<tr><td>" . $row[0] ."</td></tr>"; //or just use "echo $row[0]"
+
             }
 
             echo "</table>";
-        }
+
 
         function getTutors() {
             $table = executePlainSQL("SELECT * FROM Tutors");
@@ -204,6 +230,7 @@
         function getHardest() {
             $table = executePlainSQL("SELECT TopicName, CourseName, MAX(Difficult) FROM Topics GROUP BY CourseName, TopicName ORDER BY MAX(Difficult)");
             return $table;
+
         }
         
         function printHardest($result) { 
@@ -215,6 +242,7 @@
 
             echo "</table>";
         }
+
 
         function handleUpdateRequest() {
             global $dbconn;
@@ -254,12 +282,27 @@
         function handleCountRequest() {
             global $db_conn;
 
-            $result = executePlainSQL("SELECT Count(*) FROM demoTable");
-
-            if (($row = oci_fetch_row($result)) != false) {
-                echo "<br> The number of tuples in demoTable: " . $row[0] . "<br>";
+        function goodTutor () {
+            // finds tutor that can teach all subjects, if exists
+            $help = executePlainSQL("SELECT t.tutorname, t.tutorid FROM tutors t 
+            WHERE NOT EXISTS (
+                (SELECT s.SubjectName FROM schlSubjects s)
+                MINUS
+                (SELECT c.SubjectName FROM CanTeach c WHERE t.TutorID = c.TutorID)
+            )");
+            echo "<br>Best Tutors For Subject <br>";
+            echo "<table>";
+            echo "<tr><th> Name </th><th> ID </th></tr>";
+            
+            while ($row = OCI_Fetch_Array($help, OCI_BOTH)) {
+                echo "<tr><td>" . $row["TUTORNAME"] ."</td><td>" . $row["TUTORID"] ."</td></tr>"; //or just use "echo $row[0]"
             }
+
+
+            echo "</table>";
+
         }
+
 
         function deleteAssignment() {
             global $db_conn;
@@ -276,6 +319,7 @@
         }
 
 
+
         // HANDLE ALL POST ROUTES
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handlePOSTRequest() {
@@ -286,10 +330,14 @@
                     handleUpdateRequest();
                 } else if (array_key_exists('insertQueryRequest', $_POST)) {
                     handleInsertRequest();
+
                 } else if (array_key_exists('deleteAssignment', $_POST)) {
                     deleteAssignment();
-                } 
-
+                } else if (array_key_exists('rater', $_POST)) {
+                    $course = $_POST['subject'];
+                    echo $course;
+                    suggestedTutorsPerSubject($course);
+                }
                 disconnectFromDB();
             }
         }
@@ -313,23 +361,27 @@
                     $res = getHardest();
                     // echo "<h1>I got back</h1>";
                     printHardest($res);
-                }
 
+                } else if (array_key_exists('help', $_GET)) {
+                    goodTutor();
+                }
+                    
                 disconnectFromDB();
             }
         }
-
+        
 		if (isset($_POST['reset']) || isset($_POST['updateSubmit']) || isset($_POST['insertSubmit'])) {
             handlePOSTRequest();
         } else if (isset($_POST['loginK'])) {
             // k-12 login
             $studentID = passID();
             $inUni = False;
-            //echo $studentID;
+            echo $studentID;
         } else if (isset($_POST['loginU'])) {
             // university login
             $studentID = passID();
             $inUni = True;
+            echo $studentID;
         } else if (isset($_GET['printTutors'])) {
             handleGETRequest();
         } else if (isset($_GET['printCourses'])) {
@@ -338,7 +390,15 @@
             handleGETRequest();
         } else if (isset($_POST['deleteAssignment'])) {
             handlePOSTRequest();
+        } else if (isset($_POST['rater'])) {
+            handlePOSTRequest();
+        } else if (isset($_GET['findTutors'])) {
+            handleGETRequest();
+
         }
+        
+
+
 		?>
 	</body>
 </html>
