@@ -5,6 +5,15 @@
 
     <body>
 
+        <form method="POST" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="insertQueryRequest" name="insertQueryRequest">
+            Student ID: <input type="text" name="studentID"> <br /><br />   
+            <input type="submit" value="Login as K-12 Student" name="loginK"></p>
+            <input type="submit" value="Login as University Student" name="loginU"></p>
+        </form>
+
+        <hr />
+
         <h2>Show All Students</h2>
         <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
             <input type="hidden" id="printTuplesRequest" name="printTuplesRequest">
@@ -55,12 +64,6 @@
             <input type="submit" name="Display Hardest Topics"></p>
         </form>
         <hr />
-        <h2>Display Assignments</h2>
-        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
-            <input type="hidden" id="printAssignment" name="printAssignment">
-            <input type="submit" name="Show Assignments"></p>
-        </form>
-        <hr />
         <h2>Delete Assignments</h2>
         <form method="POST" action="studentMain.php"> 
             <input type="hidden" id="deleteAssignment" name="deleteAssignment">
@@ -81,13 +84,19 @@
             Subject: <input type="text" name="subject"> <br /><br />
             <input type="submit" value="Check Highest Rating" name="rater"></p>
         </form>
+        <hr />
+        <h2>Return Most Outstanding Student</h2>
+        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+            <input type="hidden" id="bestStudent" name="bestStudent">
+            <input type="submit" name="rater"></p>
+        </form>
 
         <hr />
         <h2>Display Failed assignments</h2>
-        <form method="GET" action="studentMain.php"> <!--refresh page when submitted-->
+        <form method="GET" action="studentMain.php"> 
             <input type="hidden" id="failedAssignments" name="failedAssignments">
             <input type="submit" name="Display Failed assignments"></p>
-        </form>
+        </form> 
 
 
         <?php
@@ -111,7 +120,7 @@
             // Your username is ora_(CWL_ID) and the password is a(student number). For example,
 			// ora_platypus is the username and a12345678 is the password.
 
-            $db_conn = OCILogon("ora_iz9877", "a49050693", "dbhost.students.cs.ubc.ca:1522/stu");
+            $db_conn = OCILogon("ora_stang001", "a22969331", "dbhost.students.cs.ubc.ca:1522/stu");
             
 
             if ($db_conn) {
@@ -189,12 +198,12 @@
 
         function getStudents() {
             $table = executePlainSQL("SELECT * FROM k_12");
-            echo "<br>All Students:<br>";
+            echo "<br>Retrieved data from stu:<br>";
             echo "<table>";
-            echo "<tr><th>StudentID</th><th>Name</th><th>Age</th></tr>";
+            echo "<tr><th>StudentID</th><th>Name</th><th>Age</th><th>SAT</th></tr>";
 
             while ($row = OCI_Fetch_Array($table, OCI_BOTH)) {
-                echo "<tr><td>" . $row[0] . "</td><td>" . $row[1] . "</td><td>" . $row[2] . "</td></tr>"; //or just use "echo $row[0]"
+                echo "<tr><td>" . $row[0] . "</td><td>" . $row[1] . "</td><td>" . $row[2] . "</td><td>" . $row[3] . "</td></tr>"; //or just use "echo $row[0]"
             }
         }
 
@@ -272,27 +281,12 @@
             $table = executePlainSQL("SELECT TopicName, CourseName, MAX(Difficult) FROM Topics GROUP BY CourseName, TopicName ORDER BY MAX(Difficult)");
             return $table;
         }
-
-        function getAssignment() {
-            $table = executePlainSQL("SELECT * FROM Assignment");
-            return $table;
-        }
         
         function printHardest($result) { 
             echo "<table>";
             echo "<tr><th>Course</th><th>Name</th><th>Difficulty</th></tr>";
             while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
                 echo "<tr><td>" . $row['COURSENAME'] . "</td><td>" . $row['TOPICNAME'] . "</td><td>" . $row["MAX(DIFFICULT)"] . "</td></tr>"; 
-            }
-
-            echo "</table>";
-        }
-
-        function printAssignment($result) {
-            echo "<table>";
-            echo "<tr><th>Assignment #</th><th>Mark</th></tr>";
-            while ($row = OCI_Fetch_Array($result, OCI_BOTH)) {
-                echo "<tr><td>" . $row[0] . "</td><td>" . $row[2] . "</td></tr>"; 
             }
 
             echo "</table>";
@@ -313,13 +307,7 @@
             $new_TID = $_POST['newTutorID'];
 
             // you need the wrap the old name and new name values with single quotations
-            executePlainSQL("UPDATE k_12 SET StudentName= '" . $new_name . "',
-                                            Age = " . $new_age . ",
-                                            Exams = " . $new_exam . ",
-                                            UniApplication = " . $new_uni_application . ",
-                                            SAT = ". $new_SAT .",
-                                            STS = ". $new_STS .",
-                                            TutorID = ". $new_TID ." WHERE StudentID = ". $student_ID ."");
+            executePlainSQL("UPDATE k_12 SET StudentName= '" . $new_name . "' WHERE StudentID = ". $student_ID ."");
 
             OCICommit($db_conn);
             
@@ -342,6 +330,7 @@
                 echo "<tr><td>" . $row["TUTORNAME"] ."</td><td>" . $row["TUTORID"] ."</td></tr>"; //or just use "echo $row[0]"
             }
 
+
             echo "</table>";
 
         }
@@ -352,7 +341,7 @@
             $aNum = $_POST['assNum'];
             $result = executePlainSQL("DELETE FROM assignment WHERE ASSIGNNUMBER = $aNum");
 
-            echo "<h1>Deleted Assignment</h1>";
+            // echo "<h1>Deleted Assignment</h1>";
 
             OCICommit($db_conn);
             
@@ -370,7 +359,6 @@
             }
             OCICommit($db_conn);
         }
-
 
         function bestStudent() {
             global $db_conn;
@@ -394,11 +382,12 @@
             echo "<tr><th>Assignemnt Number</th><th>Mark</th></tr>";
             
             $result = executePlainSQL("SELECT * FROM assignment WHERE Mark < 50");
-            if (($row = oci_fetch_row($result)) != false) {
+            if ($row = oci_fetch_row($result)) {
                 echo "<tr><td>" . $row[0] ."</td><td>" . $row[2] ."</td></tr>";
             }
             OCICommit($db_conn);
         }
+
 
 
         // HANDLE ALL POST ROUTES
@@ -425,7 +414,17 @@
 	// A better coding practice is to have one method that reroutes your requests accordingly. It will make it easier to add/remove functionality.
         function handleGETRequest() {
             if (connectToDB()) {
-                if (array_key_exists('printTuples', $_GET)) {
+                if (array_key_exists('countTuples   ', $_GET)) {
+                    $table = executePlainSQL("SELECT * FROM k_12");
+                    echo "<br>Retrieved data from stu:<br>";
+                    echo "<table>";
+                    echo "<tr><th>ID</th><th>Name</th></tr>";
+
+                    if ($row = OCI_Fetch_Array($table, OCI_BOTH)) {
+                        echo "<tr><td>" . $row["Age"] . "</td><td>" . $row["StudentName"] . "</td></tr>"; //or just use "echo $row[0]"
+                    }
+                    echo "</table>";
+                } else if (array_key_exists('printTuples', $_GET)) {
                     getStudents();
                 } else if (array_key_exists('calculateHighAvg', $_GET)) {
                     handleHighAvgRequest();
@@ -441,10 +440,6 @@
                     // echo "<h1>I got back</h1>";
                     printHardest($res);
 
-                } else if (array_key_exists('printAssignment', $_GET)) {
-                    $res = getAssignment();
-                    printAssignment($res);
-
                 } else if (array_key_exists('help', $_GET)) {
                     goodTutor();
                 } else if (array_key_exists('bestStudent', $_GET)) {
@@ -452,7 +447,6 @@
                 } else if (array_key_exists('failedAssignments', $_GET)) {
                     failed();
                 }
-                    
                 disconnectFromDB();
             }
         }
@@ -477,8 +471,6 @@
         } else if (isset($_GET['printCourses'])) {
             handleGETRequest();
         } else if (isset($_GET['printHardest'])) {
-            handleGETRequest();
-        } else if (isset($_GET['printAssignment'])) {
             handleGETRequest();
         } else if (isset($_POST['deleteAssignment'])) {
             handlePOSTRequest();

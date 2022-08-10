@@ -23,15 +23,19 @@ CREATE TABLE Availabilities
     TID int
 );
 
+grant select on Availabilities to public;
+
 CREATE TABLE schlSubjects
 (
     SubjectName char(20) PRIMARY KEY
 );
 
+grant select on schlSubjects to public;
+
 CREATE TABLE Tutors
 (
     TutorID int PRIMARY KEY,
-    StudentName char(50),
+    TutorName char(50),
     tAge int,
     Ratings int,
     SubjectName char(20) NOT NULL,
@@ -39,6 +43,8 @@ CREATE TABLE Tutors
     FOREIGN KEY (STS) REFERENCES Availabilities,
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects
 );
+
+grant select on Tutors to public;
 
 CREATE TABLE k_12
 (
@@ -53,6 +59,8 @@ CREATE TABLE k_12
     FOREIGN KEY (STS) REFERENCES Availabilities,
     FOREIGN KEY (TutorID) REFERENCES Tutors
 );
+grant select on k_12 to public;
+
 
 CREATE TABLE University
 (
@@ -67,6 +75,7 @@ CREATE TABLE University
     FOREIGN KEY (STS) REFERENCES Availabilities,
     FOREIGN KEY(TutorID) REFERENCES Tutors
 );
+grant select on University to public;
 
 CREATE TABLE NeedHelp
 (
@@ -76,6 +85,7 @@ CREATE TABLE NeedHelp
     FOREIGN KEY(StudentID) REFERENCES k_12,
     FOREIGN KEY(UniStudentID) REFERENCES University
 );
+grant select on NeedHelp to public;
 
 CREATE TABLE CanTeach
 (
@@ -85,12 +95,14 @@ CREATE TABLE CanTeach
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects,
     FOREIGN KEY (TutorID) REFERENCES Tutors
 );
+grant select on CanTeach to public;
 
 CREATE TABLE Reports
 (
     ReportNumber int PRIMARY KEY,
     ReportDesc char(1000)
 );
+grant select on Reports to public;
 
 CREATE TABLE WriteReport
 (
@@ -100,6 +112,7 @@ CREATE TABLE WriteReport
     FOREIGN KEY(ReportNumber) REFERENCES Reports,
     FOREIGN KEY(TutorID) REFERENCES Tutors
 );
+grant select on WriteReport to public;
 
 CREATE TABLE ReceiveReport
 (
@@ -111,6 +124,7 @@ CREATE TABLE ReceiveReport
     FOREIGN KEY(StudentID) REFERENCES k_12,
     FOREIGN KEY(UniStudentID) REFERENCES University
 );
+grant select on ReceiveReport to public;
 
 CREATE TABLE Courses
 (
@@ -119,6 +133,7 @@ CREATE TABLE Courses
     SubjectName char(20) NOT NULL,
     FOREIGN KEY (SubjectName) REFERENCES schlSubjects
 );
+grant select on Courses to public;
 
 CREATE TABLE Topics
 (
@@ -128,13 +143,15 @@ CREATE TABLE Topics
     PRIMARY KEY(TopicName, CourseName),
     FOREIGN KEY(CourseName) REFERENCES Courses
 );
+grant select on Topics to public;
 
 CREATE TABLE Assignment
 (
     AssignNumber int PRIMARY KEY,
-    AssignDescription varchar(1000),
+    AssignDescription char(1000),
     Mark int
 );
+grant select on Assignment to public;
 
 CREATE TABLE Give
 (
@@ -142,10 +159,11 @@ CREATE TABLE Give
     StudentID int,
     UniStudentID int,
     PRIMARY KEY(AssignNumber),
-    FOREIGN KEY(AssignNumber) REFERENCES Assignment ON DELETE CASCADE,
-    FOREIGN KEY(StudentID) REFERENCES k_12 ON DELETE CASCADE,
-    FOREIGN KEY(UniStudentID) REFERENCES University ON DELETE CASCADE
+    FOREIGN KEY(AssignNumber) REFERENCES Assignment,
+    FOREIGN KEY(StudentID) REFERENCES k_12,
+    FOREIGN KEY(UniStudentID) REFERENCES University
 );
+grant select on Give to public;
 
 CREATE TABLE Has
 (
@@ -153,10 +171,11 @@ CREATE TABLE Has
     CourseName char(20),
     TutorID integer,
     AssignNumber integer,
-    FOREIGN KEY(TopicName, CourseName) REFERENCES Topics ON DELETE CASCADE,
-    FOREIGN KEY(TutorID) REFERENCES Tutors ON DELETE CASCADE,
-    FOREIGN KEY(AssignNumber) REFERENCES Assignment ON DELETE CASCADE
+    FOREIGN KEY(TopicName, CourseName) REFERENCES Topics,
+    FOREIGN KEY(TutorID) REFERENCES Tutors,
+    FOREIGN KEY(AssignNumber) REFERENCES Assignment
 );
+grant select on Has to public;
 
 INSERT INTO Availabilities
 VALUES(112312, 'T/TH', 101, NULL, 1);
@@ -253,13 +272,27 @@ VALUES(NULL, 500, 'Mathematics');
 INSERT INTO CanTeach
 VALUES('Mathematics', 1);
 INSERT INTO CanTeach
+VALUES('Physics', 1);
+INSERT INTO CanTeach
+VALUES('English', 1);
+INSERT INTO CanTeach
+VALUES('Computer Science', 1);
+INSERT INTO CanTeach
+VALUES('Biology', 1);
+INSERT INTO CanTeach
 VALUES('Physics', 2);
 INSERT INTO CanTeach
 VALUES('English', 3);
 INSERT INTO CanTeach
 VALUES('Computer Science', 4);
 INSERT INTO CanTeach
-VALUES('Biology', 5);
+VALUES('Computer Science', 5);
+INSERT INTO CanTeach
+VALUES('English', 6);
+INSERT INTO CanTeach
+VALUES('Mathematics', 7);
+INSERT INTO CanTeach
+VALUES('Biology', 8);
 
 INSERT INTO Reports
 VALUES(324234, 'Good');
@@ -326,8 +359,6 @@ INSERT INTO Assignment
 VALUES(3, 'Essay on Hamlets disasters', 95);
 INSERT INTO Assignment
 VALUES(6, 'Sequential proof problem set', 60);
-INSERT INTO Assignment
-VALUES(10, 'cooking', 20);
 
 INSERT INTO Give
 VALUES(2, NULL, 100);
